@@ -6,6 +6,7 @@ and a GitHub Release after the macOS and Windows checks pass.
 ## 0.1.0 - 2026-11-18
 
 ### Fixed
+- Isolate retry-route tests from real OS credentials so clean Windows/macOS environments exercise the same behavior as a configured desktop.
 - Show actionable setup instructions when the macOS launcher cannot find its virtual environment or Rubber Band.
 - Document first installation, updates, daily startup, and offline verification for both Windows and macOS.
 

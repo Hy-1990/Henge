@@ -21,6 +21,8 @@ class LocalAppTests(unittest.TestCase):
         self.secrets = {}
         self.key_patch = patch("credential_store.get_key", side_effect=lambda provider: self.secrets.get(provider, ""))
         self.key_patch.start()
+        self.config_key_patch = patch("config.get_key", side_effect=lambda provider: self.secrets.get(provider, ""))
+        self.config_key_patch.start()
         self.save_patch = patch("credential_store.save_key", side_effect=lambda provider, value: self.secrets.update({provider: value}))
         self.save_patch.start()
         self.delete_patch = patch("credential_store.delete_key", side_effect=lambda provider: self.secrets.pop(provider, None))
@@ -34,6 +36,7 @@ class LocalAppTests(unittest.TestCase):
         self.delete_patch.stop()
         self.save_patch.stop()
         self.key_patch.stop()
+        self.config_key_patch.stop()
         self.run_patch.stop()
         self.directory.cleanup()
 

@@ -7,3 +7,5 @@ Interface localization must never translate or rewrite core workflow prompts or 
 Do not submit paid API calls during setup, development or tests without explicit generation authorization.
 Persist task IDs before collecting results. Never automatically resubmit ambiguous or failed paid generation requests.
 Preserve upstream MIT license and attribution. Do not redistribute upstream example media or branding.
+Every fix must bump VERSION and add an English entry to CHANGELOG.md describing changes, validation, and known limitations. Use English commit subjects and Release notes.
+Every main-branch update must have a new version. The release workflow publishes the matching GitHub Release only after macOS and Windows checks pass. Do not bypass failed checks or publish untested binaries.

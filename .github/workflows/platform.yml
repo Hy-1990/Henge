@@ -1,5 +1,9 @@
-name: Native platform contracts
-on: [push, pull_request]
+name: Desktop checks and release
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -10,13 +14,49 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install keyring==25.7.0
-      - run: python -m unittest discover -s tests -p test_platform_runtime.py -v
+      - run: python -m pip install -r requirements.txt
+      - run: python scripts/release.py --check
+      - run: python -m unittest discover -s tests -v
+      - run: python test_composite.py
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: node tests/test_storage_migration.cjs
       - run: node tests/test_media_validation.cjs
+  release:
+    needs: platform
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: henge-release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Package source and English release notes
+        run: python scripts/release.py --output dist
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="v$(cat VERSION | tr -d '\r\n')"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; leaving it unchanged."
+            exit 0
+          fi
+          gh release create "$tag" --target "$GITHUB_SHA" --title "Henge $tag" \
+            --notes-file dist/release-notes.md \
+            dist/Henge-*.zip dist/Henge-*.tar.gz dist/SHA256SUMS.txt

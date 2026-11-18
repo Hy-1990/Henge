@@ -60,6 +60,12 @@
 
 ## 安装与启动
 
+支持 Windows 10/11 x64 和 macOS，推荐使用 Python 3.12。
+可从 [Releases](https://github.com/Hy-1990/Henge/releases/latest) 下载对应系统的源码包，
+解压后在项目目录按下方步骤安装。源码包不包含 Python、Rubber Band、密钥或历史任务。
+发布说明统一使用英文，见 [CHANGELOG.md](CHANGELOG.md)。
+
+
 ### Windows：首次安装
 
 1. 安装 [Git for Windows](https://git-scm.com/download/win) 和 [Python 3.12](https://www.python.org/downloads/windows/)。Python 安装时保留 **Python Launcher**，勾选 **Add python.exe to PATH**。
@@ -88,7 +94,7 @@
 先在旧服务终端按 **Ctrl+C**，然后在项目目录执行：
 
 ```powershell
-git pull
+git pull --ff-only
 .\setup.cmd
 .\start.cmd
 ```
@@ -130,6 +136,23 @@ bash start.command
 打开 **http://127.0.0.1:8771**。以后只需在项目目录执行 `bash start.command`；更换端口可用 `PORT=8772 bash start.command`。按 **Ctrl+C** 停止。
 
 两个系统处理任务时都需要保持本地服务运行。可以关闭浏览器；重新打开已保存任务后会显示当前进度。
+
+### macOS 更新
+
+停止服务后执行：
+
+```bash
+git pull --ff-only
+PYTHON=python3.12 bash setup.sh
+# 使用人脸网格时再执行：
+FACE_PYTHON=python3.12 bash setup-face-mesh.sh
+bash start.command
+```
+
+源码包用户请解压到新目录重新安装，保留旧目录的 `runs/`；不要复制虚拟环境。
+更多双系统故障排查见 [英文安装说明](README.md#install-and-start)。
+每次 fix 都需要更新版本及英文变更说明；双系统 CI 通过后自动发布 Release，
+具体规则见 [Release policy](docs/releases.md)。
 
 ## 首次使用
 

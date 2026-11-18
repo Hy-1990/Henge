@@ -60,6 +60,17 @@ Automatic identity matching across cuts and pixel-perfect preservation of every 
 
 ## Install and start
 
+Supported desktop platforms: **Windows 10/11 x64** and **macOS**. Use Python 3.12
+for the documented installation path. API keys are stored in the native OS
+credential store. Linux is not supported by this credential-storage setup.
+
+Download a versioned source package from [Releases](https://github.com/Hy-1990/Henge/releases/latest):
+`Henge-vX.Y.Z-windows.zip` or `Henge-vX.Y.Z-macos.tar.gz`.
+Extract it, open a terminal in the extracted folder, and follow the platform steps
+below. Git is only required if you choose the clone/update route. Packages do not
+include Python, Rubber Band, API keys, models, or your task history.
+
+
 ### Windows: first installation
 
 1. Install [Git for Windows](https://git-scm.com/download/win) and [Python 3.12](https://www.python.org/downloads/windows/). Include the **Python Launcher** and select **Add python.exe to PATH**.
@@ -88,7 +99,7 @@ Automatic identity matching across cuts and pixel-perfect preservation of every 
 Stop the old service with **Ctrl+C**, then run from the project folder:
 
 ```powershell
-git pull
+git pull --ff-only
 .\setup.cmd
 .\start.cmd
 ```
@@ -129,6 +140,32 @@ bash start.command
 
 Open **http://127.0.0.1:8771**. For later sessions, run `bash start.command` from the project folder. Use `PORT=8772 bash start.command` for another port. Stop with **Ctrl+C**.
 
+### macOS: update an existing installation
+
+Stop the service with **Ctrl+C**, then run:
+
+```bash
+git pull --ff-only
+PYTHON=python3.12 bash setup.sh
+# Only if you use face mesh:
+FACE_PYTHON=python3.12 bash setup-face-mesh.sh
+bash start.command
+```
+
+For release archives, extract the new version into a new folder and run setup
+again. Keep the old folder until you have backed up or moved its `runs/` task
+history. Create fresh virtual environments; do not copy `.venv` or `.venv-face`
+between platforms or installation folders. Keys remain in your OS credential store.
+
+### macOS: troubleshooting
+
+- `brew` not found: install [Homebrew](https://brew.sh/) and follow its shell setup instructions.
+- `python3.12` not found after installing it: open a new terminal and check `python3.12 --version`.
+- Missing virtual environment: run `PYTHON=python3.12 bash setup.sh` before starting.
+- Missing Rubber Band: run `brew install rubberband`, then check `rubberband --version`.
+- Keychain access denied: allow Python access when macOS prompts; reopen API keys and save again.
+- Port 8771 in use: stop the previous service or run `PORT=8772 bash start.command`.
+
 On both systems, keep the local service running while processing. Closing the browser is fine; reopening a saved task retrieves its current state.
 
 ## First run
@@ -158,7 +195,26 @@ Keys are stored in the current user's macOS Keychain or Windows Credential Manag
 - Saved DreamAPI task IDs resume result collection; there is no automatic paid re-submission.
 - Media and task metadata remain in `runs/` on this computer. Uploaded source derivatives and references are processed by Replicate/DreamAPI and their storage providers.
 
+## Releases and updates
+
+Every fix must include a patch-version bump in `VERSION` and English release
+notes in [CHANGELOG.md](CHANGELOG.md). After both native desktop CI jobs pass,
+each main-branch update automatically publishes the matching GitHub Release
+with Windows/macOS source archives and SHA-256 checksums. An existing version
+cannot be reused for a different commit. See [Release policy](docs/releases.md).
+
 ## Offline checks
+
+Windows PowerShell:
+
+```powershell
+.venv\Scripts\python.exe -m unittest discover -s tests -v
+.venv\Scripts\python.exe test_composite.py
+# Optional face-mesh environment:
+.venv-face\Scripts\python.exe -c "import mediapipe, cv2, PIL, numpy"
+```
+
+macOS:
 
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
